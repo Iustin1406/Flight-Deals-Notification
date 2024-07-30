@@ -1,5 +1,6 @@
 from twilio.rest import Client
 from datetime import datetime
+import smtplib
 
 
 class NotificationManager:
@@ -18,7 +19,17 @@ class NotificationManager:
         )
         print(message.sid)
 
-    def format_message(self, flight_offer):
+    def send_email(self, user_name, user_email, message, password, from_email):
+        with smtplib.SMTP("smtp.gmail.com") as connection:
+            connection.starttls()
+            connection.login(user=from_email, password=password)
+            connection.sendmail(
+                from_addr=from_email,
+                to_addrs=user_email,
+                msg=f"Hello {user_name}\n\n{message}"
+            )
+
+    def format_message(self, flight_offer) -> str:
         price = flight_offer['price']['total']
         currency = flight_offer['price']['currency']
         itinerary = flight_offer['itineraries'][0]
@@ -42,4 +53,4 @@ class NotificationManager:
             f"Price: {price} {currency}\n"
         )
 
-        self.send_message(message)
+        return message
